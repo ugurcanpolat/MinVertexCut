@@ -1,0 +1,14 @@
+# Exclude macOS directory service files
+.DS_Store
+
+# Exclude assignment file
+*.pdf
+
+# Exclude Xcode project
+*.xcodeproj
+
+# Exclude executables
+*.out
+150140117
+project3
+thomassShops
