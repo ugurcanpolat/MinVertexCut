@@ -24,10 +24,10 @@ class Network {
     vector< vector<bool> > residualShops;
     int numberOfRoads;
     int numberOfShops;
+    vector<bool> dfsFindAllReacheableNodes(int s) const;
     bool bfsIsThereAPath(int s, int t, vector<int>& path) const;
   public:
     Network(const vector< vector<bool> >& shops, int nRoads, int nShops);
-    vector<bool>& operator[](int i);
     int findMinNumberOfClosedShops();
 };
 
@@ -94,6 +94,28 @@ Network::Network(const vector< vector<bool> >& copy, int nRoads, int nShops) {
     shops = copy;
     numberOfRoads = nRoads;
     numberOfShops = nShops;
+}
+
+vector<bool> Network::dfsFindAllReacheableNodes(int s) const {
+    vector<bool> reached(numberOfShops,false);
+    stack<int> dfsStack;
+    
+    dfsStack.push(s);
+    reached[s] = true;
+    
+    while(!dfsStack.empty()) {
+        int u = dfsStack.top();
+        dfsStack.pop();
+        
+        for (int i = 0; i < numberOfShops; i++) {
+            if (!reached[i] && residualShops[u][i]) {
+                dfsStack.push(i);
+                reached[i] = true;
+            }
+        }
+    }
+    
+    return reached;
 }
 
 bool Network::bfsIsThereAPath(int s, int t, vector<int>& path) const {
