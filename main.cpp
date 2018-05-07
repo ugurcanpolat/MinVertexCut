@@ -24,6 +24,7 @@ class Network {
     vector< vector<bool> > residualShops;
     int numberOfRoads;
     int numberOfShops;
+    void findShopsFarthersFromEachOther(int& s, int& t) const;
     vector<bool> dfsFindAllReachableNodes(int s) const;
     bool bfsIsThereAPath(int s, int t, vector<int>& path) const;
   public:
@@ -91,9 +92,31 @@ int main(int argc, const char * argv[]) {
 }
 
 Network::Network(const vector< vector<bool> >& copy, int nRoads, int nShops) {
-    shops = copy;
+    shops = residualShops = copy;
     numberOfRoads = nRoads;
     numberOfShops = nShops;
+}
+
+void Network::findShopsFarthersFromEachOther(int& s, int& t) const {
+    int maxDistance = 0;
+    vector<int> path(numberOfShops,-1);
+    
+    for (int i = 0; i < numberOfShops; i++) {
+        for (int j = 1; j < numberOfShops; j++) {
+            if (bfsIsThereAPath(i, j, path)) {
+                int c = 0;
+                for (int k = j; k != i; c++)
+                    k = path[k];
+                
+                if (c > maxDistance) {
+                    maxDistance = c;
+                    s = i;
+                    t = j;
+                }
+            }
+            path.assign(path.size(), -1);
+        }
+    }
 }
 
 vector<bool> Network::dfsFindAllReachableNodes(int s) const {
@@ -125,11 +148,11 @@ bool Network::bfsIsThereAPath(int s, int t, vector<int>& path) const {
     flag[s] = true;
     bfsQueue.push(s);
     
-    while (!bfsQueue.empty()) {
+    while (!bfsQueue.empty() && !flag[t]) {
         int u = bfsQueue.front();
         bfsQueue.pop();
         
-        for (int i = 0; i < numberOfShops; i++) {
+        for (int i = 0; i < numberOfShops && !flag[t]; i++) {
             if (!flag[i] && residualShops[u][i]) {
                 bfsQueue.push(i);
                 flag[i] = true;
@@ -142,5 +165,7 @@ bool Network::bfsIsThereAPath(int s, int t, vector<int>& path) const {
 }
 
 int Network::findMinNumberOfClosedShops() {
+    int s,t;
+    findShopsFarthersFromEachOther(s, t);
     return 0;
 }
