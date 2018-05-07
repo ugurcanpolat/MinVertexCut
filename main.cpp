@@ -11,20 +11,23 @@
 #include <fstream>  // ifstream
 #include <iostream> // cout
 #include <sstream>  // stringstrem
+#include <stack>    // stack
 #include <string>   // string
 #include <vector>   // vector
+#include <queue>    // queue
 
 using namespace std;
 
 class Network {
   private:
-    vector< vector<int> > shops;
+    vector< vector<bool> > shops;
+    vector< vector<bool> > residualShops;
     int numberOfRoads;
     int numberOfShops;
-    bool bfsFindPath(int s, int t);
+    bool bfsIsThereAPath(int s, int t, vector<int>& path) const;
   public:
-    Network(const vector< vector<int> >& shops, int nRoads, int nShops);
-    vector<int>& operator[](int i);
+    Network(const vector< vector<bool> >& shops, int nRoads, int nShops);
+    vector<bool>& operator[](int i);
     int findMinNumberOfClosedShops();
 };
 
@@ -60,11 +63,7 @@ int main(int argc, const char * argv[]) {
     
     // Create matrix of integers that holds if there is a road between
     // two shops or not. If there is a road the value is 1, otherwise 0.
-    vector< vector<int> > shopMatrix;
-    shopMatrix.resize(numberOfShops);
-    
-    for(int i = 0; i < numberOfShops; i++)
-        shopMatrix[i].resize(numberOfShops);
+    vector< vector<bool> > shopMatrix(numberOfShops, vector<bool>(numberOfShops,false));
     
     for(int i = 0; i < numberOfRoads; i++) {
         getline(inputFile, line); // Read line
@@ -79,8 +78,8 @@ int main(int argc, const char * argv[]) {
         int shopID1 = atoi(read[0].c_str());
         int shopID2 = atoi(read[1].c_str());
         
-        shopMatrix[shopID1-1][shopID2-1] = 1;
-        shopMatrix[shopID2-1][shopID1-1] = 1;
+        shopMatrix[shopID1-1][shopID2-1] = true;
+        shopMatrix[shopID2-1][shopID1-1] = true;
     }
     
     // Close the input file since it is no longer needed
@@ -91,14 +90,33 @@ int main(int argc, const char * argv[]) {
     return 0;
 }
 
-Network::Network(const vector< vector<int> >& copy, int nRoads, int nShops) {
+Network::Network(const vector< vector<bool> >& copy, int nRoads, int nShops) {
     shops = copy;
     numberOfRoads = nRoads;
     numberOfShops = nShops;
 }
 
-vector<int>& Network::operator[](int i) {
-    return shops[i];
+bool Network::bfsIsThereAPath(int s, int t, vector<int>& path) const {
+    vector<bool> flag(numberOfShops,false);
+    
+    queue<int> bfsQueue;
+    flag[s] = true;
+    bfsQueue.push(s);
+    
+    while (!bfsQueue.empty()) {
+        int u = bfsQueue.front();
+        bfsQueue.pop();
+        
+        for (int i = 0; i < numberOfShops; i++) {
+            if (!flag[i] && residualShops[u][i]) {
+                bfsQueue.push(i);
+                flag[i] = true;
+                path[i] = u;
+            }
+        }
+    }
+    
+    return flag[t];
 }
 
 int Network::findMinNumberOfClosedShops() {
