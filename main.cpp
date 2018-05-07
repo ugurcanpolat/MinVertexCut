@@ -24,7 +24,7 @@ class Network {
     vector< vector<bool> > residualShops;
     int numberOfRoads;
     int numberOfShops;
-    vector<bool> dfsFindAllReacheableNodes(int s) const;
+    vector<bool> dfsFindAllReachableNodes(int s) const;
     bool bfsIsThereAPath(int s, int t, vector<int>& path) const;
   public:
     Network(const vector< vector<bool> >& shops, int nRoads, int nShops);
@@ -96,7 +96,7 @@ Network::Network(const vector< vector<bool> >& copy, int nRoads, int nShops) {
     numberOfShops = nShops;
 }
 
-vector<bool> Network::dfsFindAllReacheableNodes(int s) const {
+vector<bool> Network::dfsFindAllReachableNodes(int s) const {
     vector<bool> reached(numberOfShops,false);
     stack<int> dfsStack;
     
