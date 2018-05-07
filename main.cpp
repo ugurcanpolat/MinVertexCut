@@ -11,6 +11,7 @@
 #include <fstream>  // ifstream
 #include <iostream> // cout
 #include <sstream>  // stringstrem
+#include <string>   // string
 #include <vector>   // vector
 
 using namespace std;
