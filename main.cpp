@@ -12,6 +12,7 @@
 #include <iostream> // cout
 #include <sstream>  // stringstrem
 #include <stack>    // stack
+#include <cstdlib>  // atoi
 #include <string>   // string
 #include <vector>   // vector
 #include <queue>    // queue
@@ -38,10 +39,8 @@ int main(int argc, const char * argv[]) {
         cout << endl << "Missing arguments to proceed." << endl << endl;
         return 0;
     }
-    
-    // Get input file name and open the file
-    string input_filename(argv[1]);
-    ifstream inputFile(input_filename, ifstream::in); // Read
+
+    ifstream inputFile(argv[1]); // Open file
     
     if (!inputFile.is_open()) { // Error while openning the file
         cout << endl << "Error opening input file." << endl << endl;
