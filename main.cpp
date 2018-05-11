@@ -8,11 +8,13 @@
  
  * * * * * * * * * * * * * * * * * */
 
+#include <climits>  // INT_MAX
+#include <cmath>    // pow
+#include <cstdlib>  // atoi
 #include <fstream>  // ifstream
 #include <iostream> // cout
 #include <sstream>  // stringstrem
 #include <stack>    // stack
-#include <cstdlib>  // atoi
 #include <string>   // string
 #include <vector>   // vector
 #include <queue>    // queue
@@ -28,6 +30,7 @@ class Network {
     void findShopsFarthersFromEachOther(int& s, int& t) const;
     vector<bool> findAllReachableShops(int s) const;
     bool isThereAPath(int s, int t, vector<int>& path) const;
+    vector< vector<int> > powerSet(const vector<int>& set) const;
   public:
     Network(const vector< vector<bool> >& shops, int nRoads, int nShops);
     int findMinNumberOfClosedShops();
@@ -185,6 +188,26 @@ bool Network::isThereAPath(int s, int t, vector<int>& path) const {
     return flag[t];
 }
 
+vector< vector<int> > Network::powerSet(const vector<int>& set) const {
+    int size = static_cast<int>(set.size()); // Get size of the set
+    int pSize = pow(2, size); // Power-set size
+    
+    vector< vector<int> > powerS(pSize); // Create empty vector
+    
+    // Find powersets
+    for(int counter = 0; counter < pSize; counter++) {
+        // Traverse all elements
+        for(int j = 0; j < size; j++) {
+            // Compare bitwise and it is set push that element to the list.
+            if(counter & (1<<j))
+                powerS[counter].push_back(set[j]);
+        }
+    }
+    
+    // Return powerset
+    return powerS;
+}
+
 int Network::findMinNumberOfClosedShops() {
     // If number of shops is less than 5, no need to take action.
     if(numberOfShops < 5)
@@ -282,41 +305,64 @@ int Network::findMinNumberOfClosedShops() {
     if (numOfCutA == 0 || numOfCutB == 0)
         return 0;
     
-    // Vector that holds closed shops, initial value is false.
-    vector<bool> closedShops(numberOfShops,false);
+    vector<int> closeSet;
     
     for (int i = 0; i < numberOfShops; i++) {
         for (int j = 0; j < numberOfShops; j++) {
             // ith node is in cut-A and jth node in cut-B, there is a
             // road between them
             if (cutA[i] && !cutA[j] && shops[i][j]) {
-                // Remove from cut-A if there are more than 2 nodes
-                if (numOfCutA > 2) {
-                    closedShops[i] = true;
-                    numOfCutA--;
-                // Remove from cut-B if there are more than 2 nodes
-                } else if (numOfCutB > 2) {
-                    closedShops[j] = true;
-                    numOfCutB--;
-                } 
+                int count = 0;
+                
+                // Check if left side of edge in close shop set
+                for (count = 0; count < closeSet.size(); count++) {
+                    if (closeSet[count] == i)
+                        break;
+                }
+                
+                // If left side of edge is not recorded yet and not source
+                // or sink
+                if ((count == closeSet.size() || closeSet.size() == 0)
+                    && i != s && i != t)
+                    closeSet.push_back(i);
+                
+                // Check if right side of edge in close shop set
+                for (count = 0; count < closeSet.size(); count++) {
+                    if (closeSet[count] == j)
+                        break;
+                }
+                
+                // If right side of edge is not recorded yet and not source
+                // or sink
+                if (count == closeSet.size() && j != s && j != t)
+                    closeSet.push_back(j);
             }
         }
     }
+
+    vector< vector<int> > powerS = powerSet(closeSet); // Get power set
+    int closeSize = INT_MAX; // Initial value
     
-    
-    // Check if there is still a road between cut-A and cut-B after
-    // Ford-Fulkerson operations. If there is a road, return 0.
-    for (int i = 0; i < numberOfShops; i++) {
-        for (int j = 0; j < numberOfShops; j++) {
-            if (cutA[i] && !cutA[j] && shops[i][j] && (!closedShops[i] &&
-                                                       !closedShops[j])) {
-                return 0;
+    for (int i = 0; i < powerS.size(); i++) {
+        residualShops = shops; // Restore original graph
+        
+        for (int j = 0; j < powerS[i].size(); j++) {
+            for (int k = 0; k < numberOfShops; k++) {
+                // Remove that shop
+                residualShops[powerS[i][j]][k] = false;
+                residualShops[k][powerS[i][j]] = false;
             }
         }
         
+        // If graph is correctly disconnected
+        if(!isThereAPath(s, t, path) && !powerS[i].empty()) {
+            // If number of nodes deleted is less than minimum, it will be
+            // new minimum
+            if (static_cast<int>(powerS[i].size()) < closeSize) {
+                closeSize = static_cast<int>(powerS[i].size());
+            }
+        }
     }
     
-    // Calculate number of closed shops and return.
-    int numOfClosedShops = numberOfShops - (numOfCutA + numOfCutB);
-    return numOfClosedShops;
+    return closeSize;
 }
