@@ -1,0 +1,77 @@
+>ls
+test1 test2 test3 test4 thomassShops
+
+>cat test1
+5 4
+1 2
+3 2
+3 4
+5 4
+>./thomassShops test1
+1
+
+>cat test2
+6 9
+1 2
+1 4
+3 2
+3 5
+3 6
+2 5
+2 4
+5 4
+5 6
+>./thomassShops test2
+2
+
+>cat test3
+6 6
+1 2
+1 4
+3 2
+3 6
+5 4
+5 6
+>./thomassShops test3
+2
+
+>cat test4
+19 36
+11 10
+11 12
+11 15
+11 17
+11 16
+11 6
+10 15
+10 5
+13 12
+13 14
+13 17
+13 19
+13 18
+13 8
+12 8
+12 6
+15 16
+14 9
+14 19
+17 18
+17 16
+19 18
+1 2
+1 5
+1 6
+3 8
+3 4
+3 7
+2 7
+2 6
+5 6
+4 9
+4 8
+7 8
+7 6
+9 8
+>./thomassShops test4
+3
